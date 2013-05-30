@@ -20,6 +20,8 @@ exports.findById = function(req, res) {
     db.collection('players', function(err, collection) {
         collection.findOne({'id': id}, function(err, item) {
             console.log(item);
+            debugger;
+
             res.jsonp(item);
         });
     });
@@ -40,7 +42,7 @@ exports.findAll = function(req, res) {
     var name = req.query["name"];
     db.collection('players', function(err, collection) {
         if (name) {
-            collection.find({ $or: [ {"firstName": new RegExp(name, "i")}, { "lastName": new RegExp(name, "i") } ]}).toArray(function(err, items) {
+            collection.find({ $or: [ {"firstName": new RegExp(name, "i")}, { "lastName": new RegExp(name, "i") }, { "cellPhone": new RegExp(name, "i") } ]}).toArray(function(err, items) {
                 res.jsonp(items);
             });
         } else {
