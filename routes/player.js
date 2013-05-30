@@ -53,8 +53,7 @@ exports.findAll = function(req, res) {
 
 exports.addPlayer = function(req, res) {
     var player = req.body;
-//    console.log('Displaying req: ' + player.firstName);
-    console.log('Displaying body: ' + req.body);
+    debugger;
     console.log('Adding player: ' + JSON.stringify(player));
     db.collection('players', function(err, collection) {
         collection.insert(player, {safe:true}, function(err, result) {
