@@ -8,7 +8,8 @@ app.use(express.bodyParser());
 app.get('/players/:id/reports', players.findByManager);
 app.get('/players/:id', players.findById);
 app.get('/players', players.findAll);
-app.get('/voice/sms', voice.sendSms);
+app.get('/voice/sms', voice.sendMsg);
+app.get('/voice/team', voice.teamMsg);
 
 app.post('/players', players.addPlayer);
 app.put('/players/:id', players.updatePlayer);
