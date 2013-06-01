@@ -54,7 +54,7 @@ exports.teamMsg = function(req, res) {
 					if(err){
 			            return res2.send(500);
 			 		}
-		 			console.log('SMS "' +msg+ '" sent to', to + '. Conversation id: ', data.send_sms_response.conversation_id);
+		 			console.log('SMS "' +msg+ '" sent to', item.cellPhone + '. Conversation id: ', data.send_sms_response.conversation_id);
 		       	});
 			 }
     	});
