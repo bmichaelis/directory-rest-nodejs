@@ -42,7 +42,8 @@ exports.findAll = function(req, res) {
     var name = req.query["name"];
     db.collection('players', function(err, collection) {
         if (name) {
-            collection.find({ $or: [ {"firstName": new RegExp(name, "i")}, { "lastName": new RegExp(name, "i") }, { "cellPhone": new RegExp(name, "i") } ]}).toArray(function(err, items) {
+            collection.find({ "disabled": false }).toArray(function(err, items) {
+            //collection.find({ $or: [ {"firstName": new RegExp(name, "i")}, { "lastName": new RegExp(name, "i") }, { "cellPhone": new RegExp(name, "i") } ]}).toArray(function(err, items) {
                 res.jsonp(items);
             });
         } else {
