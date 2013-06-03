@@ -44,7 +44,7 @@ exports.teamMsg = function(req, res) {
    	var msg = typeof req.query["msg"] != 'undefined' ? req.query["msg"] : 'This is a test sms from Brett';
     console.log('teamMsg: ' + msg);
     db.collection('players', function(err, collection) {
-        collection.find({ $or: [ {'firstName': 'Brett'}, {'firstName': 'Nikki'},{'firstName': 'Kendrick'} ] }).each(function(err, item) {
+        collection.find({ 'disabled': false }).each(function(err, item) {
         	if(item != null)
         	{
 	        	console.log(item);
