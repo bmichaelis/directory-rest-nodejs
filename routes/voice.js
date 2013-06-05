@@ -12,12 +12,11 @@ mongoClient.open(function(err, mongoClient) {
         }
     });
 });
-
-var voicejs   = require('../lib/voice/voice.js');
+var voicejs   = require('voice');
 var client = new voicejs.Client({
 	email: 'brett.michaelis@gmail.com',
 	password: 'MIch@0076!',
-	tokens: require('../lib/voice/tokens.json')
+	tokens: require('voice/tokens.json')
 });
 
 client.on('status', function(status){
@@ -25,6 +24,7 @@ client.on('status', function(status){
 	console.log(status);
 });
 
+var messages = [];
 exports.sendMsg = function(req, res) {
 	var res2 = res;
 	var text = typeof req.query["msg"] != 'undefined' ? req.query["msg"] : 'This is a test sms from Brett';
@@ -44,20 +44,24 @@ exports.teamMsg = function(req, res) {
    	var msg = typeof req.query["msg"] != 'undefined' ? req.query["msg"] : 'This is a test sms from Brett';
     console.log('teamMsg: ' + msg);
     db.collection('players', function(err, collection) {
-        collection.find({ 'disabled': false }).each(function(err, item) {
+    	collection.find({ 'disabled': false }).each(function(err, item) {
         	if(item != null)
         	{
-	        	console.log(item);
-	        	console.log(typeof item);
-	        	res.send(200);
-			 	client.sms({ to: item.cellPhone, text: msg}, function(err, res, data){
-					if(err){
-			            return res2.send(500);
-			 		}
-		 			console.log('SMS "' +msg+ '" sent to', item.cellPhone + '. Conversation id: ', data.send_sms_response.conversation_id);
-		       	});
-			 }
+        		item.msg = msg;
+        		messages.push(item);
+        		console.log("Added to Queue:\n" + item);
+			}
     	});
-	   	res2.send(200, "Message Sent");
+	   	res2.send(200, "Message Queued");
 	});
 };
+
+setInterval(function() {
+	if(messages.length > 0) {
+		var message = messages.pop();
+    	console.log(message);
+	 	client.sms({ to: '8013102818', text: message.cellPhone + message.msg}, function(err, res, data){
+			console.log('SMS "' + message.msg + '" sent to', message.cellPhone + '. Conversation id: ', data.send_sms_response.conversation_id);
+       	});
+	 }
+}, 5000);

@@ -1,27 +1,34 @@
 var MongoClient = require('mongodb').MongoClient,
     Server = require('mongodb').Server,
+    BSON = require('mongodb').BSONPure,
     db;
+
+var winston = require('winston'),
+    logger = new (winston.Logger)({
+    transports: [
+      new (winston.transports.Console)(),
+      new (winston.transports.File)({ filename: 'somefile.log' })
+    ]
+  });
 
 var mongoClient = new MongoClient(new Server('localhost', 27017));
 mongoClient.open(function(err, mongoClient) {
     db = mongoClient.db("player13");
     db.collection('players', {strict:true}, function(err, collection) {
         if (err) {
-            console.log("The 'players' collection doesn't exist. Creating it with sample data...");
+            logger.info("The 'players' collection doesn't exist. Creating it with sample data...");
             populateDB();
         }
     });
 });
  
 exports.findById = function(req, res) {
-    console.log(req.params);
+    logger.info(req.params);
     var id = parseInt(req.params.id);
-    console.log('findById: ' + id);
+    logger.info('findById: ' + id);
     db.collection('players', function(err, collection) {
         collection.findOne({'id': id}, function(err, item) {
-            console.log(item);
-            debugger;
-
+            logger.info(item);
             res.jsonp(item);
         });
     });
@@ -29,10 +36,10 @@ exports.findById = function(req, res) {
 
 exports.findByManager = function(req, res) {
     var id = parseInt(req.params.id);
-    console.log('findByManager: ' + id);
+    logger.info('findByManager: ' + id);
     db.collection('players', function(err, collection) {
         collection.find({'managerId': id}).toArray(function(err, items) {
-            console.log(items);
+            logger.info(items);
             res.jsonp(items);
         });
     });
@@ -42,12 +49,11 @@ exports.findAll = function(req, res) {
     var name = req.query["name"];
     db.collection('players', function(err, collection) {
         if (name) {
-            collection.find({ "disabled": false }).toArray(function(err, items) {
-            //collection.find({ $or: [ {"firstName": new RegExp(name, "i")}, { "lastName": new RegExp(name, "i") }, { "cellPhone": new RegExp(name, "i") } ]}).toArray(function(err, items) {
+            collection.find({ $or: [ {"firstName": new RegExp(name, "i")}, { "lastName": new RegExp(name, "i") }, { "cellPhone": new RegExp(name, "i") } ]}).toArray(function(err, items) {
                 res.jsonp(items);
             });
         } else {
-            collection.find().toArray(function(err, items) {
+            collection.find({ "disabled": false }).toArray(function(err, items) {
                 res.jsonp(items);
             });
         }
@@ -56,14 +62,13 @@ exports.findAll = function(req, res) {
 
 exports.addPlayer = function(req, res) {
     var player = req.body;
-    debugger;
-    console.log('Adding player: ' + JSON.stringify(player));
+    logger.info('Adding player: ' + JSON.stringify(player));
     db.collection('players', function(err, collection) {
         collection.insert(player, {safe:true}, function(err, result) {
             if (err) {
                 res.send({'error':'An error has occurred'});
             } else {
-                console.log('Success: ' + JSON.stringify(result[0]));
+                logger.info('Success: ' + JSON.stringify(result[0]));
                 res.send(result[0]);
             }
         });
@@ -71,17 +76,17 @@ exports.addPlayer = function(req, res) {
 }; 
 
 exports.updatePlayer = function(req, res) {
-    var id = req.params.id;
+    var playerId = req.params.id;
     var player = req.body;
-    console.log('Updating player: ' + id);
-    console.log(JSON.stringify(player));
+    delete player._id;
+    logger.info('Updating player: ' + playerId);
     db.collection('players', function(err, collection) {
-        collection.update({'_id':new BSON.ObjectID(id)}, player, {safe:true}, function(err, result) {
+        collection.update({'id': player.id}, player, {w: 1}, function(err, result) {
             if (err) {
-                console.log('Error updating player: ' + err);
-            res.send({'error':'An error has occurred'});
+                logger.info('Error updating player: ' + err);
+                res.send({'error':'An error has occurred'});
             } else {
-                console.log('' + result + ' document(s) updated');
+                logger.info('' + result + ' document(s) updated');
                 res.send(player);
             }
         });
@@ -90,13 +95,13 @@ exports.updatePlayer = function(req, res) {
  
 exports.deletePlayer = function(req, res) {
     var id = req.params.id;
-    console.log('Deleting player: ' + id);
+    logger.info('Deleting player: ' + id);
     db.collection('players', function(err, collection) {
-        collection.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
+        collection.remove({'id': id}, {safe:true}, function(err, result) {
             if (err) {
                 res.send({'error':'An error has occurred - ' + err});
             } else {
-                console.log('' + result + ' document(s) deleted');
+                logger.info('' + result + ' document(s) deleted');
                 res.send(req.body);
             }
         });
@@ -107,7 +112,7 @@ exports.deletePlayer = function(req, res) {
 // You'd typically not find this code in a real-life app, since the database would already exist.
 var populateDB = function() {
  
-    console.log("Populating player database...");
+    logger.info("Populating player database...");
     var players = [
             {"id": 1, "firstName": "Brett", "lastName": "Michaelis", " ":"8013102818", "disabled": false},
             {"id": 2, "firstName": "Nikki", "lastName": "Michaelis", "cellPhone":"8013674188", "disabled": false},

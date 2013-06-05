@@ -1,9 +1,18 @@
 var express = require('express'),
     players = require('./routes/player'),
-    voice   = require('./routes/voice');
+    voice   = require('./routes/voice'),
+    winston = require('winston');
+var logger = new (winston.Logger)({
+    transports: [
+      new (winston.transports.Console)(),
+      new (winston.transports.File)({ filename: 'somefile.log' })
+    ]
+  });
 
 var app = express();
 app.use(express.bodyParser());
+app.use(express.methodOverride());
+app.use(app.router);
 
 app.get('/players/:id/reports', players.findByManager);
 app.get('/players/:id', players.findById);
