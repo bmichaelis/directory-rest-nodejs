@@ -24,6 +24,7 @@ app.post('/players', players.addPlayer);
 app.put('/players/:id', players.updatePlayer);
 app.delete('/players/:id', players.deletePlayer);
 
+setInterval(voice.processQueue, 5000);
 
 app.listen(3000);
 console.log('Listening on port 3000...');
