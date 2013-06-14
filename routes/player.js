@@ -23,7 +23,6 @@ mongoClient.open(function(err, mongoClient) {
 });
  
 exports.findById = function(req, res) {
-    logger.info(req.params);
     var id = parseInt(req.params.id);
     logger.info('findById: ' + id);
     db.collection('players', function(err, collection) {
