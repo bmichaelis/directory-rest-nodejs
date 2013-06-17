@@ -80,7 +80,7 @@ exports.processQueue = function() {
     	collection.findAndModify({id: {$gt: 0}},[['_id','asc']],{ remove: true }, function(err, item){
         	if(item != null && item != undefined)
         	{
-			 	client.sms({ to: item.cellPhone, text: item.cellPhone + ": " + item.firstName + " " + item.lastName + "::\n" + item.msg}, function(err, res, data){
+			 	client.sms({ to: item.cellPhone, text: item.msg}, function(err, res, data){
 			    	logger.info("Message Sent:");
 			    	logger.info(item);
 		       	});
