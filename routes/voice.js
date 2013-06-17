@@ -20,7 +20,7 @@ var winston = require('winston'),
     ]
   });
 
-var voicejs   = require('<voice></voice>');
+var voicejs   = require('voice');
 var client = new voicejs.Client({
     email: 'brett.michaelis@gmail.com',
     password: 'MIch@0076!',
