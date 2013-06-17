@@ -20,7 +20,7 @@ var winston = require('winston'),
     ]
   });
 
-var voicejs   = require('voice');
+var voicejs   = require('<voice></voice>');
 var client = new voicejs.Client({
     email: 'brett.michaelis@gmail.com',
     password: 'MIch@0076!',
@@ -80,7 +80,7 @@ exports.processQueue = function() {
     	collection.findAndModify({id: {$gt: 0}},[['_id','asc']],{ remove: true }, function(err, item){
         	if(item != null && item != undefined)
         	{
-			 	client.sms({ to: '8013102818', text: item.cellPhone + ": " + item.firstName + " " + item.lastName + "::\n" + item.msg}, function(err, res, data){
+			 	client.sms({ to: item.cellPhone, text: item.cellPhone + ": " + item.firstName + " " + item.lastName + "::\n" + item.msg}, function(err, res, data){
 			    	logger.info("Message Sent:");
 			    	logger.info(item);
 		       	});
