@@ -55,5 +55,5 @@ setInterval(voice.processQueue, 5000);
 // 	voice.processQueue(io);
 // }, 5000);
 
-app.listen(3001);
+app.listen(3000);
 logger.log('Listening on port 3000...');
