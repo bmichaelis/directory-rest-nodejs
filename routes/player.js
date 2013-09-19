@@ -113,9 +113,6 @@ exports.getSchedule = function(req, res) {
     var YQL = require("yql");
     var website = "http://www.letsplaysoccer.com";
     new YQL.exec("select * from html where url=\"" + website + "/facilities/16/teams\" and xpath=\"//a[contains(., '" + team + "')]\"", function(response) {
-      console.log("select * from html where url=\"" + website + "/facilities/16/teams\" and xpath=\"//a[contains(., '" + team + "')]\"");
-      console.log(response);
-      console.log(website + response.query.results.a.href);
       var schedule = website + response.query.results.a.href;
       new YQL.exec("select * from html where url=\"" + schedule + "\" and xpath=\"//td/a[contains(@href, 'games')]\"", function(response){
         var season = {};
