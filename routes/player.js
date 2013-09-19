@@ -23,6 +23,7 @@ mongoClient.open(function(err, mongoClient) {
 });
  
 exports.findById = function(req, res) {
+//    socket.emit();
     var id = parseInt(req.params.id);
     logger.info('findById: ' + id);
     db.collection('players', function(err, collection) {
@@ -106,6 +107,36 @@ exports.deletePlayer = function(req, res) {
         });
     });
 };
+
+exports.getSchedule = function(req, res) {
+    var team = req.params.team;
+    var YQL = require("yql");
+    var website = "http://www.letsplaysoccer.com";
+    new YQL.exec("select * from html where url=\"" + website + "/facilities/16/teams\" and xpath=\"//a[contains(., '" + team + "')]\"", function(response){
+      console.log(website + response.query.results.a.href);
+      var schedule = website + response.query.results.a.href;
+      new YQL.exec("select * from html where url=\"" + schedule + "\" and xpath=\"//td/a[contains(@href, 'games')]\"", function(response){
+        var season = {};
+        response.query.results.a.forEach(function(item, index){
+            logger.info(item.content);
+            season["game"+(index+1)] = {time: item.content};
+        }); 
+
+        res.jsonp(season);
+      });
+
+    });
+};
+
+
+// exports.index = function(req, res) {
+//     res.send('<html><body><script src="http://cdn.socket.io/stable/socket.io.js"></script><script>\
+//   var socket = io.connect(\'http://localhost:3001\');\
+//   socket.on(\'msg\', function (data) {\
+//     console.log(data);\
+//   });\
+// </script></body></html>');
+// }
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Populate database with sample data -- Only used once: the first time the application is started.
 // You'd typically not find this code in a real-life app, since the database would already exist.

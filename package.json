@@ -6,8 +6,10 @@
     "dependencies": {
         "express": "3.x",
         "mongodb": "*",
-        "voice": "*",
+        "socket.io": "~0.9.16",
+         "voice": "*",
         "winston": "*",
-	"passport": "*"
+	"passport": "*",
+	"yql": "*"
     }
 }
