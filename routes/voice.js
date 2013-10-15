@@ -75,16 +75,20 @@ exports.teamMsg = function(req, res) {
 	});
 };
 
+//exports.processQueue = function(io) {
 exports.processQueue = function() {
 	db.collection('messages', function(err, collection) {
     	collection.findAndModify({id: {$gt: 0}},[['_id','asc']],{ remove: true }, function(err, item){
         	if(item != null && item != undefined)
         	{
-			 	client.sms({ to: '8013102818', text: item.cellPhone + ": " + item.firstName + " " + item.lastName + "::\n" + item.msg}, function(err, res, data){
+			 	client.sms({ to: item.cellPhone, text: item.msg}, function(err, res, data){
 			    	logger.info("Message Sent:");
 			    	logger.info(item);
 		       	});
+		       	// io.sockets.emit('msg', { msg: 'Message Sent to' + item.firstName + ' ' + item.lastName } );
 		    }
 	   	});
 	});
+	// io.sockets.emit("Checked the queue");
+
 };

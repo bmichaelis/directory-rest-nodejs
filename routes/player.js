@@ -23,7 +23,7 @@ mongoClient.open(function(err, mongoClient) {
 });
  
 exports.findById = function(req, res) {
-    logger.info(req.params);
+//    socket.emit();
     var id = parseInt(req.params.id);
     logger.info('findById: ' + id);
     db.collection('players', function(err, collection) {
@@ -52,7 +52,11 @@ exports.findAll = function(req, res) {
             collection.find({ $or: [ {"firstName": new RegExp(name, "i")}, { "lastName": new RegExp(name, "i") }, { "cellPhone": new RegExp(name, "i") } ]}).toArray(function(err, items) {
                 res.jsonp(items);
             });
-        } else {
+        } else if(req.query["all"]) {
+		collection.find().toArray(function(err, items) {
+                res.jsonp(items);
+            });
+	} else {
             collection.find({ "disabled": false }).toArray(function(err, items) {
                 res.jsonp(items);
             });
@@ -107,6 +111,37 @@ exports.deletePlayer = function(req, res) {
         });
     });
 };
+
+exports.getSchedule = function(req, res) {
+    var team = req.params.team.toUpperCase();
+    var YQL = require("yql");
+    var website = "http://www.letsplaysoccer.com";
+    new YQL.exec("select * from html where url=\"" + website + "/facilities/16/teams\" and xpath=\"//a[contains(., '" + team + "')]\"", function(response) {
+logger.info('Schedule not found using: ' + "select * from html where url=\"" + website + "/facilities/16/teams\" and xpath=\"//a[contains(., '" + team + "')]\"");
+logger.info(response);	
+var schedule = website + response.query.results.a.href;
+      new YQL.exec("select * from html where url=\"" + schedule + "\" and xpath=\"//td/a[contains(@href, 'games')]\"", function(response){
+        var season = {};
+        response.query.results.a.forEach(function(item, index){
+            logger.info(item.content);
+            season["game"+(index+1)] = {time: item.content};
+        }); 
+
+        res.jsonp(season);
+      }, {"diagnostics": "true"});
+
+    }, {"diagnostics": "true"});
+};
+
+
+// exports.index = function(req, res) {
+//     res.send('<html><body><script src="http://cdn.socket.io/stable/socket.io.js"></script><script>\
+//   var socket = io.connect(\'http://localhost:3001\');\
+//   socket.on(\'msg\', function (data) {\
+//     console.log(data);\
+//   });\
+// </script></body></html>');
+// }
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Populate database with sample data -- Only used once: the first time the application is started.
 // You'd typically not find this code in a real-life app, since the database would already exist.
